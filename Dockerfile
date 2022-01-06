@@ -12,15 +12,6 @@ MAINTAINER https://github.com/datze
 ENV	TIME_ZONE "Europe/Rome"
 ENV	HOST_NAME "davical.example"
 
-# config files, shell scripts
-COPY 	initialize_db.sh /sbin/initialize_db.sh
-COPY	backup_db.sh /sbin/backup_db.sh
-COPY	docker-entrypoint.sh /sbin/docker-entrypoint.sh
-COPY	restore_db.sh /sbin/restore_db.sh
-COPY	apache.conf /config/apache.conf
-COPY	davical.php /config/davical.php
-COPY	supervisord.conf /config/supervisord.conf
-COPY	rsyslog.conf /config/rsyslog.conf
 
 # apk
 RUN	apk --update add \
@@ -57,9 +48,20 @@ RUN	apk --update add \
 	&& git clone https://gitlab.com/davical-project/awl.git /usr/share/awl/ \
 	&& git clone https://gitlab.com/davical-project/davical.git /usr/share/davical/ \
 	&& rm -rf /usr/share/davical/.git /usr/share/awl/.git/ \
-	&& apk del git \
+	&& apk del git
+
+
+# config files, shell scripts
+COPY 	initialize_db.sh /sbin/initialize_db.sh
+COPY	backup_db.sh /sbin/backup_db.sh
+COPY	docker-entrypoint.sh /sbin/docker-entrypoint.sh
+COPY	restore_db.sh /sbin/restore_db.sh
+COPY	apache.conf /config/apache.conf
+COPY	davical.php /config/davical.php
+COPY	supervisord.conf /config/supervisord.conf
+COPY	rsyslog.conf /config/rsyslog.conf
 # Apache
-	&& chown -R root:apache /usr/share/davical \
+RUN chown -R root:apache /usr/share/davical \
 	&& cd /usr/share/davical/ \
 	&& find ./ -type d -exec chmod u=rwx,g=rx,o=rx '{}' \; \
 	&& find ./ -type f -exec chmod u=rw,g=r,o=r '{}' \; \
@@ -102,6 +104,8 @@ RUN	apk --update add \
 	&& mkdir /run/postgresql \
 	&& chmod a+w /run/postgresql
 
-EXPOSE 80 443
-VOLUME 	["/var/lib/postgresql/data/","/config"]
+RUN chown -R apache:apache /var/www
+#USER apache
+
+EXPOSE 80
 ENTRYPOINT ["/sbin/docker-entrypoint.sh"]
