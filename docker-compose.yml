@@ -4,6 +4,8 @@ services:
   davical:
     build: 
       context: .
+      args:
+        TIME_ZONE: Europe/Paris
     ports:
       - "8050:80"
     environment:

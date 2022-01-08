@@ -9,8 +9,11 @@
 FROM 	alpine
 MAINTAINER https://github.com/datze 
 
-ENV	TIME_ZONE "Europe/Rome"
-ENV	HOST_NAME "davical.example"
+ARG     TIME_ZONE "Europe/Rome"
+ENV	TIME_ZONE=$TIME_ZONE
+
+ARG     HOST_NAME "davical.example"
+ENV	HOST_NAME=$HOST_NAME
 
 
 # apk
@@ -102,9 +105,16 @@ RUN chown -R root:apache /usr/share/davical \
 	&& rm -rf /var/cache/apk/* \
  	&& mkdir -p /run/apache2 \
 	&& mkdir /run/postgresql \
-	&& chmod a+w /run/postgresql
+	&& chmod a+w /run/postgresql \
+        && chown -R apache:apache /var/www
 
-RUN chown -R apache:apache /var/www
+#SET THE TIMEZONE
+RUN apk add --update tzdata
+RUN cp /usr/share/zoneinfo/$TIME_ZONE /etc/localtime
+RUN echo $TIME_ZONE > /etc/timezone
+RUN apk del tzdata
+
+
 #USER apache
 
 EXPOSE 80
