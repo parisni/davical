@@ -1,0 +1,49 @@
+version: '3'
+services:
+
+  davical:
+    build: 
+      context: .
+      args:
+        TIME_ZONE: Europe/Paris
+    ports:
+      - "8050:80"
+    env_file: dav-env
+#    volumes: 
+#      - /var/davical/config:/config:ro
+    restart: unless-stopped
+    depends_on:
+       postgres:
+        condition: service_healthy
+       createdb:
+        condition: service_completed_successfully
+    entrypoint: ["/sbin/apache2_start.sh"]
+
+  createdb:
+    build: 
+      context: .
+      dockerfile: Dockerfile.createdb
+      args:
+        TIME_ZONE: Europe/Paris
+    env_file: dav-env
+    depends_on:
+       postgres:
+        condition: service_healthy
+    entrypoint: ["/sbin/initialize_db.sh"]
+
+
+  postgres:
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: eorihasdfasdf
+      DAVICAL_DBA_PASSWORD: 123456
+      DAVICAL_APP_PASSWORD: 654321
+    volumes:
+      - ./docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: [ "CMD-SHELL", "psql -U postgres -c 'select 1'|grep -q 1" ]
+      interval: 5s
+      timeout: 1s
+      retries: 30
+

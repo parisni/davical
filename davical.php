@@ -16,7 +16,8 @@ $c->sysabbr = 'davical';
 * successively applying connection parameters from the array in
 * $c->pg_connect.
 */
-$c->pg_connect[] = "dbname=davical user=davical_app";
+//$c->pg_connect[] = "dbname=davical user=davical_app";
+$c->pg_connect[] = "dbname=davical user=davical_app port=5432 host=postgres password=654321";
 // $c->pg_connect[] = "dbname=davical user=davical_app port=5433 host=somehost password=mypass";
 
 
