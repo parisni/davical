@@ -9,8 +9,7 @@ if [[ $INITIALIZED_DB == 0 ]]; then
 /usr/share/davical/dba/create-database.sh davical ${ADMIN_PASSWORD}
 fi
 unset INITIALIZED_DB
-exit 0
 
 #UPDATE ALWAYS THE DATABASE
-#/usr/share/davical/dba/update-davical-database --dbhost postgres --dbuser "davical_dba" --dbname "davical" --appuser "${DAVICAL_APP_PASSWORD}" --nopatch --owner "${DAVICAL_DBA_PASSWORD}"
+/usr/share/davical/dba/update-davical-database ${DBAOPTS} --dbhost postgres --dbuser "${DAVICAL_DBA_USER}" --dbname "davical" --appuser "${DAVICAL_APP_USER}" 
 

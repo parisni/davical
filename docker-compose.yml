@@ -20,7 +20,30 @@ services:
     depends_on:
        postgres:
         condition: service_healthy
+       createdb:
+        condition: service_completed_successfully
+          #entrypoint: ["tail", "-f", "/dev/null"]
+    entrypoint: ["/sbin/apache2_start.sh"]
 
+  createdb:
+    build: 
+      context: .
+      dockerfile: Dockerfile.createdb
+      args:
+        TIME_ZONE: Europe/Paris
+    environment:
+      AMIN_PASSWORD: 1234
+      DAVICAL_DBA_USER: davical_dba
+      DAVICAL_DBA_PASSWORD: 123456
+      DAVICAL_APP_USER: davical_app
+      DAVICAL_APP_PASSWORD: 654321
+      PSQLOPTS: "-U davical_dba -h postgres -p 5432 "
+      DBAOPTS: "--dbhost=postgres --dbuser davical_dba --dbpass 123456 "
+    depends_on:
+       postgres:
+        condition: service_healthy
+    entrypoint: ["/sbin/initialize_db.sh"]
+      #entrypoint: ["tail", "-f", "/dev/null"]
 
 
   postgres:
