@@ -100,5 +100,3 @@ RUN apk del tzdata
 RUN setcap cap_net_bind_service=+epi /usr/sbin/httpd
 
 USER apache
-
-EXPOSE 8080
