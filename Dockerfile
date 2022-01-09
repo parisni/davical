@@ -16,6 +16,8 @@ ARG     HOST_NAME "davical.example"
 ENV	HOST_NAME=$HOST_NAME
 
 
+RUN addgroup -S apache && adduser -S apache -G apache
+
 # apk
 RUN	apk --update add \
 	sudo \
@@ -40,6 +42,7 @@ RUN	apk --update add \
 	php7-calendar \
 	php7-session \
 	git \
+        libcap \
 # git
 	&& git clone https://gitlab.com/davical-project/awl.git /usr/share/awl/ \
 	&& git clone https://gitlab.com/davical-project/davical.git /usr/share/davical/ \
@@ -85,7 +88,8 @@ RUN chown -R root:apache /usr/share/davical \
 # clean-up etc
 	&& rm -rf /var/cache/apk/* \
  	&& mkdir -p /run/apache2 \
-        && chown -R apache:apache /var/www /var/log/apache2
+        && chown -R apache:apache /var/www /run/apache2 /var/log/apache2 /etc/ssl/apache2 \
+        && rm /etc/apache2/conf.d/ssl.conf
 
 #SET THE TIMEZONE
 RUN apk add --update tzdata
@@ -93,7 +97,8 @@ RUN cp /usr/share/zoneinfo/$TIME_ZONE /etc/localtime
 RUN echo $TIME_ZONE > /etc/timezone
 RUN apk del tzdata
 
+RUN setcap cap_net_bind_service=+epi /usr/sbin/httpd
 
-#USER apache
+USER apache
 
-EXPOSE 80
+EXPOSE 8080
